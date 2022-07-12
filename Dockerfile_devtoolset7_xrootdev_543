@@ -1,0 +1,39 @@
+FROM centos/devtoolset-7-toolchain-centos7:7
+
+
+USER 0
+RUN yum update -y && yum install -y vim git rpm-build wget  
+
+RUN yum --disablerepo=\* --enablerepo=base,updates groupinstall -y  "Development Tools"
+RUN  yum install -y yum-plugin-priorities
+RUN yum install -y  https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+# Verify that /etc/yum.repos.d/epel.repo exists; the [epel] section should contain:
+# The line enabled=1
+# Either no priority setting, or a priority setting that is 99 or higher
+
+RUN  yum install -y cmake3 krb5-devel readline-devel fuse-devel libxml2-devel zlib-devel ncurses-devel libcurl-devel libuuid-devel voms-devel libmacaroons-devel json-c-devel python2-devel python3-devel openssl-devel selinux-policy-devel graphviz systemd-devel cppunit
+
+RUN yum install -y  devtoolset-7  #belongs higher up, but missed out on first round
+
+COPY xrootd.repo /etc/yum.repos.d/xrootd.repo
+RUN yum update -y
+
+RUN yum install -y  xrootd-5.4.3-1.el7 
+RUN yum install -y  xrootd-devel-5.4.3-1.el7 xerces-c xrootd-devel-5.4.3-1.el7 xrootd-server-devel-5.4.3-1.el7 xrootd-private-devel-5.4.3-1.el7 xrootd-scitokens-5.4.3-1.el7
+
+#RUN wget https://repo.opensciencegrid.org/osg/upcoming/el7/release/x86_64/xrootd-cmstfc-1.5.2-6.osgup.el7.x86_64.rpm 
+RUN wget https://repo.opensciencegrid.org/osg/3.6/el7/development/x86_64/xrootd-cmstfc-1.5.2-6.osg36.el7.x86_64.rpm
+# RUN rpm -ivh xrootd-cmstfc-1.5.2-6.osgup.el7.x86_64.rpm
+RUN rpm -ivh xrootd-cmstfc-1.5.2-6.osg36.el7.x86_64.rpm
+
+COPY ceph.repo /etc/yum.repos.d/ceph.repo
+RUN yum install -y  librados-devel libradosstriper-devel libradospp-devel librados2 libradosstriper1 
+
+# RUN yum install -y  devtoolset-7  #belongs higher up, but missed out on first round
+
+RUN mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+
+COPY docker_entryfile.sh .
+CMD ./docker_entryfile.sh
+

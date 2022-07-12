@@ -1,0 +1,20 @@
+FROM centos:7
+
+
+
+RUN yum update -y && yum install -y vim git rpm-build wget  
+
+RUN yum --disablerepo=\* --enablerepo=base,updates groupinstall -y  "Development Tools"
+RUN  yum install -y yum-plugin-priorities
+RUN yum install -y  https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+RUN wget https://repo.opensciencegrid.org/osg/3.6/el7/development/x86_64/xrootd-cmstfc-1.5.2-6.osg36.el7.x86_64.rpm
+
+COPY ceph.repo /etc/yum.repos.d/ceph.repo
+RUN yum install -y  librados-devel libradosstriper-devel libradospp-devel librados2 libradosstriper1 
+
+
+RUN yum install -y  xrootd xrootd-devel xerces-c
+RUN yum install -y  python3-xrootd xrootd-scitokens
+
+RUN rpm -ivh xrootd-cmstfc-1.5.2-6.osg36.el7.x86_64.rpm
